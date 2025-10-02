@@ -75,12 +75,12 @@ def parse_from_mongo(item):
             if key.endswith('_date') and isinstance(value, str):
                 try:
                     item[key] = datetime.fromisoformat(value).date()
-                except:
+                except ValueError:
                     pass
             elif key.endswith('_time') and isinstance(value, str):
                 try:
                     item[key] = datetime.strptime(value, '%H:%M:%S').time()
-                except:
+                except ValueError:
                     pass
     return item
 
