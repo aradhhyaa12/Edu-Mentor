@@ -520,6 +520,113 @@ async def get_admin_stats(current_user: User = Depends(get_current_user)):
         "pending_enquiries": total_enquiries
     }
 
+# Initialize sample data
+@api_router.post("/init-data")
+async def initialize_sample_data():
+    # Check if data already exists
+    existing_colleges = await db.colleges.count_documents({})
+    if existing_colleges > 0:
+        return {"message": "Sample data already exists"}
+    
+    # Sample colleges
+    sample_colleges = [
+        {
+            "name": "Indian Institute of Technology, Patna",
+            "location": "Patna, Bihar",
+            "state": "Bihar",
+            "courses": ["B.Tech"],
+            "fees_range": "₹2-8 Lakhs",
+            "rating": 4.5,
+            "description": "Premier engineering institute with excellent placement record",
+            "established_year": 2008
+        },
+        {
+            "name": "Patna Medical College",
+            "location": "Patna, Bihar",
+            "state": "Bihar",
+            "courses": ["BHMS", "BAMS"],
+            "fees_range": "₹1-3 Lakhs",
+            "rating": 4.2,
+            "description": "Leading medical college in Bihar",
+            "established_year": 1925
+        },
+        {
+            "name": "Birla Institute of Technology, Mesra",
+            "location": "Ranchi, Jharkhand",
+            "state": "Jharkhand",
+            "courses": ["B.Tech", "B.Pharma"],
+            "fees_range": "₹5-12 Lakhs",
+            "rating": 4.3,
+            "description": "Private engineering and pharmacy college",
+            "established_year": 1955
+        }
+    ]
+    
+    for college_data in sample_colleges:
+        college = College(**college_data)
+        college_mongo = prepare_for_mongo(college.dict())
+        await db.colleges.insert_one(college_mongo)
+    
+    # Sample courses
+    sample_courses = [
+        {
+            "name": "Bachelor of Technology",
+            "course_type": "B.Tech",
+            "duration": "4 years",
+            "description": "Undergraduate engineering program",
+            "eligibility": "12th with PCM (75%+ marks)",
+            "career_opportunities": ["Software Engineer", "System Analyst", "Project Manager"]
+        },
+        {
+            "name": "Bachelor of Physiotherapy",
+            "course_type": "BPT",
+            "duration": "4.5 years",
+            "description": "Healthcare program focusing on physical rehabilitation",
+            "eligibility": "12th with PCB (50%+ marks)",
+            "career_opportunities": ["Physiotherapist", "Sports Therapist", "Rehabilitation Specialist"]
+        },
+        {
+            "name": "Bachelor of Pharmacy",
+            "course_type": "B.Pharma",
+            "duration": "4 years",
+            "description": "Pharmaceutical sciences program",
+            "eligibility": "12th with PCM/PCB (50%+ marks)",
+            "career_opportunities": ["Pharmacist", "Drug Inspector", "Research Analyst"]
+        }
+    ]
+    
+    for course_data in sample_courses:
+        course = Course(**course_data)
+        course_mongo = prepare_for_mongo(course.dict())
+        await db.courses.insert_one(course_mongo)
+    
+    # Sample testimonials
+    sample_testimonials = [
+        {
+            "student_name": "Rahul Kumar",
+            "course": "B.Tech Computer Science",
+            "college": "IIT Patna",
+            "message": "Edu-Mentor helped me secure admission in my dream college. The counselling was excellent!",
+            "rating": 5.0,
+            "is_featured": True
+        },
+        {
+            "student_name": "Priya Singh",
+            "course": "B.Pharma",
+            "college": "BIT Mesra",
+            "message": "Thanks to Edu-Mentor, I got admission with scholarship. Highly recommended!",
+            "rating": 4.8,
+            "is_featured": True
+        }
+    ]
+    
+    for testimonial_data in sample_testimonials:
+        testimonial = Testimonial(**testimonial_data)
+        test_mongo = prepare_for_mongo(testimonial.dict())
+        await db.testimonials.insert_one(test_mongo)
+    
+    return {"message": "Sample data initialized successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
